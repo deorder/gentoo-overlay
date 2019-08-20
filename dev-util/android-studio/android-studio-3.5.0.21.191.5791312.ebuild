@@ -4,6 +4,8 @@
 EAPI=6
 inherit eutils java-pkg-2 eapi7-ver
 
+# Deorder: update
+
 RESTRICT="strip"
 QA_PREBUILT="opt/${PN}/bin/libbreakgen*.so
 	opt/${PN}/bin/fsnotifier*

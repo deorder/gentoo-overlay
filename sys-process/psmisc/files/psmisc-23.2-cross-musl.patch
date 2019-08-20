@@ -1,0 +1,16 @@
+diff -u a/configure.ac b/configure.ac
+--- a/configure.ac	2017-09-18 22:45:50.228296414 +0200
++++ b/configure.ac	2019-08-19 01:53:17.710597285 +0200
+@@ -177,11 +177,9 @@
+ AC_PROG_GCC_TRADITIONAL
+ AC_FUNC_LSTAT
+ AC_FUNC_LSTAT_FOLLOWS_SLASHED_SYMLINK
+-AC_FUNC_MALLOC
+ AC_FUNC_MEMCMP
+-AC_FUNC_REALLOC
+ AC_FUNC_STAT
+-AC_CHECK_FUNCS([atexit getmntent memset nl_langinfo rawmemchr regcomp rpmatch setlocale socket strcasecmp strchr strdup strerror strpbrk strrchr strtoul])
++AC_CHECK_FUNCS([malloc realloc atexit getmntent memset nl_langinfo rawmemchr regcomp rpmatch setlocale socket strcasecmp strchr strdup strerror strpbrk strrchr strtoul])
+ 
+ dnl Checks for Large File System
+ AC_SYS_LARGEFILE

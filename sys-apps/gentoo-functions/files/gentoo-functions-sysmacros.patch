@@ -1,0 +1,15 @@
+diff -u a/headers.h b/headers.h
+--- a/headers.h	2019-08-18 03:00:10.374306777 +0200
++++ b/headers.h	2019-08-18 03:00:28.667305719 +0200
+@@ -11,8 +11,10 @@
+ #define HAVE_SETSID
+ 
+ /* OS-specific includes */
+-#if defined(__GLIBC__)
++#if defined(__GLIBC__) || defined(__linux__)
+ # define HAVE_SYS_SYSMACROS_H
++#endif
++#if defined(__GLIBC__)
+ # define HAVE_ERROR_H
+ #endif
+ 
