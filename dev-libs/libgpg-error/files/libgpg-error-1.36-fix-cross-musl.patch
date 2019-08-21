@@ -1,6 +1,6 @@
 diff -ur a/src/mkheader.c b/src/mkheader.c
---- a/src/mkheader.c	2019-08-20 01:44:32.641336750 +0200
-+++ b/src/mkheader.c	2019-08-20 01:43:24.680336152 +0200
+--- a/src/mkheader.c	2019-03-19 08:04:48.000000000 +0100
++++ b/src/mkheader.c	2019-08-21 05:49:57.634745947 +0200
 @@ -17,6 +17,7 @@
  #include <string.h>
  #include <errno.h>
@@ -9,7 +9,7 @@ diff -ur a/src/mkheader.c b/src/mkheader.c
  
  #define PGM "mkheader"
  
-@@ -88,98 +89,71 @@
+@@ -88,98 +89,69 @@
  canon_host_triplet (const char *triplet, int no_vendor_hack, char **r_os)
  {
    struct {
@@ -48,10 +48,8 @@ diff -ur a/src/mkheader.c b/src/mkheader.c
 +    {"alpha*linux-gnu", "alpha-unknown-linux-gnu"},
 +    {"arm*apple-darwin", "arm-apple-darwin"},
 +    {"arm*linux-androideabi", "arm-unknown-linux-androideabi"},
-+    {"arm*linux-gnueabihf", "arm-unknown-linux-gnueabi"},
-+    {"arm*linux-gnueabi", "arm-unknown-linux-gnueabi"},
-+    {"armv6*linux-musleabihf", "arm-unknown-linux-gnueabi"},
-+    {"armv5*linux-musleabi", "arm-unknown-linux-gnueabi"},
++    {"arm*linux-gnu*", "arm-unknown-linux-gnueabi"},
++    {"arm*linux-musl*", "arm-unknown-linux-gnueabi"},
 +    {"hppa*linux-gnu", "hppa-unknown-linux-gnu"},
 +    {"i?86*freebsd-gnu", "i686-unknown-kfreebsd-gnu"},
 +    {"i?86*linux-gnu", "i686-unknown-linux-gnu"},
@@ -87,7 +85,8 @@ diff -ur a/src/mkheader.c b/src/mkheader.c
 -  const char *lastalias = NULL;
 -  const char *s;
    char *p;
-   char *result;
+-  char *result;
++  char *result = xstrdup("");
  
 -  for (i=0; tbl[i].name; i++)
 -    {

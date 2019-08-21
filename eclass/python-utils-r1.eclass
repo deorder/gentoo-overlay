@@ -1076,6 +1076,7 @@ python_wrapper_setup() {
 
 			cat > "${workdir}/bin/python-config" <<-_EOF_ || die
 				#!/bin/sh
+				export PYTHONPATH="${workdir}/lib\${PYTHONPATH:+:}\${PYTHONPATH}"
 				exec "${pysysroot}/usr/bin/${EPYTHON}-config" "\${@}"
 			_EOF_
 			cp "${workdir}"/bin/{python,python${pyver}}-config  || die
@@ -1107,6 +1108,18 @@ python_wrapper_setup() {
 			ln -s "${pysysroot}"/usr/$(get_libdir)/pkgconfig/${EPYTHON/n/n-}.pc \
 				"${workdir}"/pkgconfig/python.pc || die
 			ln -s python.pc "${workdir}"/pkgconfig/python${pyver}.pc || die
+
+			cat > "${workdir}/lib/sitecustomize.py" <<-_EOF_ || die
+				import sys
+				import site
+
+				sys.path, sys_path = sys.path[:1], sys.path[1:]
+				site.addsitedir('${pysysroot}/usr/lib/${EPYTHON}/site-packages')
+				sys.path.extend(sys_path)
+
+				sys.base_prefix = '${pysysroot}/usr'
+				sys.prefix = '${pysysroot}/usr'
+			_EOF_
 		else
 			nonsupp+=( 2to3 python-config "python${pyver}-config" )
 		fi

@@ -241,6 +241,7 @@ src_configure() {
 	# http://lists.openembedded.org/pipermail/openembedded-devel/2018-July/119160.html
 	# https://git.yoctoproject.org/cgit.cgi/poky/plain/meta/recipes-support/vim/vim.inc
 	if tc-is-cross-compiler ; then
+		export ac_cv_sizeof_int=4
 		export vim_cv_terminfo=yes
 		export vim_cv_tgetent=zero
 		export vim_cv_tgent=non-zero
