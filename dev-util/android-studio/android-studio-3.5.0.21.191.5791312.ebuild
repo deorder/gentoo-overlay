@@ -109,7 +109,6 @@ src_install() {
 	fperms 755 "${dir}/bin/studio.sh" "${dir}"/bin/fsnotifier{,64}
 	fperms -R 755 "${dir}"/bin/lldb/{android,bin}
 	chmod 755 "${ED%/}${dir}"/bin/*.py "${ED%/}${dir}"/bin/*.sh || die
-	chmod 755 "${ED%/}${dir}"/gradle/gradle-*/bin/gradle || die
 
 	newicon "bin/studio.png" "${PN}.png"
 	make_wrapper ${PN} ${dir}/bin/studio.sh
