@@ -81,9 +81,11 @@ src_prepare() {
 }
 
 src_configure() {
+	# Deorder: Fails when libiberty is not found
 	local myconf=(
 		--disable-Werror
 		--libdir=/usr/lib
+		--without-libiberty
 		$(use_enable ipv6 rfc2553)
 		$(use_with gtk)
 		$(use_with gnome)
