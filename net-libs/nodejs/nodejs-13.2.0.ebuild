@@ -15,10 +15,13 @@ SRC_URI="
 LICENSE="Apache-1.1 Apache-2.0 BSD BSD-2 MIT"
 SLOT="0"
 KEYWORDS="~amd64 ~arm ~arm64 ~ppc ~ppc64 ~x86 ~amd64-linux ~x64-macos"
-IUSE="cpu_flags_x86_sse2 debug doc icu inspector +npm +snapshot +ssl systemtap test"
+
+# Deorder: arm: support armv8
+IUSE="cpu_flags_x86_sse2 cpu_flags_arm_vfpv3 cpu_flags_arm_vfpv3-d16 cpu_flags_arm_vfp cpu_flags_arm_neon debug doc icu inspector +npm pax_kernel +snapshot +ssl systemtap test"
 REQUIRED_USE="
 	inspector? ( icu ssl )
 	npm? ( ssl )
+	arm64? ( cpu_flags_arm_vfpv3 )
 "
 
 RDEPEND="
@@ -33,6 +36,7 @@ BDEPEND="
 	${PYTHON_DEPS}
 	systemtap? ( dev-util/systemtap )
 	test? ( net-misc/curl )
+	pax_kernel? ( sys-apps/elfix )
 "
 DEPEND="
 	${RDEPEND}
@@ -60,9 +64,6 @@ src_prepare() {
 	# https://code.google.com/p/gyp/issues/detail?id=260
 	sed -i -e "/append('-arch/d" tools/gyp/pylib/gyp/xcode_emulation.py || die
 
-	# make sure we use python2.* while using gyp
-	sed -i -e "s/python/${EPYTHON}/" deps/npm/node_modules/node-gyp/gyp/gyp || die
-
 	# less verbose install output (stating the same as portage, basically)
 	sed -i -e "/print/d" tools/install.py || die
 
@@ -88,6 +89,9 @@ src_prepare() {
 		sed -i -e "s|out/Release/|out/Debug/|g" tools/install.py || die
 		BUILDTYPE=Debug
 	fi
+
+	# We need to disable mprotect on two files when it builds Bug 694100.
+	use pax_kernel && PATCHES+=( "${FILESDIR}"/${PN}-13.2.0-paxmarking.patch )
 
 	default
 }
@@ -119,12 +123,28 @@ src_configure() {
 	# Deorder: cross
 	if tc-is-cross-compiler ; then
 	  myconf+=( --cross-compiling )
+	  export CC_host="$(tc-getBUILD_CC)"
+	  export CXX_host="$(tc-getBUILD_CXX)"
+	  export CPP_host="$(tc-getBUILD_CPP)"
+	fi
+
+	# Deorder: arm: support armv8
+	if use cpu_flags_arm_vfpv3; then
+	  if use cpu_flags_arm_vfpv3-d16; then
+		myconf+=( --with-arm-fpu=vfpv3-d16 )
+	  else
+		myconf+=( --with-arm-fpu=vfpv3 )
+	  fi
+	elif use cpu_flags_arm_neon; then
+	  myconf+=( --with-arm-fpu=neon )
+	elif use cpu_flags_arm_vfp; then
+	  myconf+=( --with-arm-fpu=vfp )
 	fi
 
 	GYP_DEFINES="linux_use_gold_flags=0
 		linux_use_bundled_binutils=0
 		linux_use_bundled_gold=0" \
-	"${PYTHON}" configure \
+	"${EPYTHON}" configure.py \
 		--prefix="${EPREFIX}"/usr \
 		--dest-cpu=${myarch} \
 		$(use_with systemtap dtrace) \
@@ -132,8 +152,15 @@ src_configure() {
 }
 
 src_compile() {
-	emake -C out mksnapshot
-	pax-mark m "out/${BUILDTYPE}/mksnapshot"
+	# Deorder: cross
+	if tc-is-cross-compiler ; then
+	  export CC_host="$(tc-getBUILD_CC)"
+	  export CXX_host="$(tc-getBUILD_CXX)"
+	  export CPP_host="$(tc-getBUILD_CPP)"
+	  # Deorder: cross: do not use shared nghttp2 etc. for host so it can be build on 64bit x86 machines
+	  sed -i -e 's/LIBS := $(LIBS)/LIBS := /' out/tools/v8_gypfiles/*.host.mk
+	fi
+
 	emake -C out
 }
 
@@ -197,7 +224,7 @@ src_install() {
 
 src_test() {
 	out/${BUILDTYPE}/cctest || die
-	"${PYTHON}" tools/test.py --mode=${BUILDTYPE,,} -J message parallel sequential || die
+	"${EPYTHON}" tools/test.py --mode=${BUILDTYPE,,} -J message parallel sequential || die
 }
 
 pkg_postinst() {
