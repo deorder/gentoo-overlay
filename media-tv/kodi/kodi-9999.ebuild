@@ -18,7 +18,7 @@ SRC_URI="https://github.com/xbmc/libdvdcss/archive/${LIBDVDCSS_VERSION}.tar.gz -
 	https://github.com/xbmc/libdvdnav/archive/${LIBDVDNAV_VERSION}.tar.gz -> libdvdnav-${LIBDVDNAV_VERSION}.tar.gz
 	!system-ffmpeg? ( https://github.com/xbmc/FFmpeg/archive/${FFMPEG_VERSION}-${CODENAME}-${FFMPEG_KODI_VERSION}.tar.gz -> ffmpeg-${PN}-${FFMPEG_VERSION}-${CODENAME}-${FFMPEG_KODI_VERSION}.tar.gz )"
 
-inherit autotools cmake-utils desktop linux-info pax-utils python-single-r1 xdg
+inherit autotools cmake-utils desktop linux-info pax-utils python-single-r1 xdg git-r3
 
 DESCRIPTION="A free and open source media-player and entertainment hub"
 HOMEPAGE="https://kodi.tv/ https://kodi.wiki/"
@@ -158,6 +158,11 @@ ERROR_IP_MULTICAST="
 In some cases Kodi needs to access multicast addresses.
 Please consider enabling IP_MULTICAST under Networking options.
 "
+
+PATCHES=(
+	"${FILESDIR}/${P}-remove-dependency.patch"
+	"${FILESDIR}/${P}-use-cmake-find-root-path.patch"
+)
 
 pkg_setup() {
 	check_extra_config

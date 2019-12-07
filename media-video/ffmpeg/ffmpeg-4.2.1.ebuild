@@ -70,7 +70,7 @@ FFMPEG_FLAG_MAP=(
 		+bzip2:bzlib cpudetection:runtime-cpudetect debug gcrypt gnutls gmp
 		+gpl hardcoded-tables +iconv libressl:libtls libxml2 lzma +network opencl
 		openssl +postproc samba:libsmbclient sdl:ffplay sdl:sdl2 vaapi vdpau
-		X:xlib xcb:libxcb xcb:libxcb-shm xcb:libxcb-xfixes +zlib cudanv
+		X:xlib xcb:libxcb xcb:libxcb-shm xcb:libxcb-xfixes +zlib
 		# libavdevice options
 		cdio:libcdio iec61883:libiec61883 ieee1394:libdc1394 libcaca openal
 		opengl
@@ -84,7 +84,7 @@ FFMPEG_FLAG_MAP=(
 		vorbis:libvorbis vpx:libvpx zvbi:libzvbi
 		# libavfilter options
 		appkit
-		bs2b:libbs2b chromaprint cuda:cuda-llvm flite:libflite frei0r
+		bs2b:libbs2b chromaprint cuda:cuda-llvm cudanv:cuda-nvcc flite:libflite frei0r
 		fribidi:libfribidi fontconfig ladspa libass libtesseract lv2 truetype:libfreetype vidstab:libvidstab
 		rubberband:librubberband zeromq:libzmq zimg:libzimg
 		# libswresample options
@@ -307,6 +307,7 @@ GPL_REQUIRED_USE="
 "
 REQUIRED_USE="
 	cuda? ( video_cards_nvidia )
+	cudanv? ( video_cards_nvidia )
 	libv4l? ( v4l )
 	fftools_cws2fws? ( zlib )
 	test? ( encode )
@@ -348,12 +349,12 @@ multilib_src_configure() {
 	# Deorder: cuda: headers are under /opt/cuda
 	if use cudanv; then
 		myconf+=( --enable-nonfree )
-		myconf+=( --enable-cuvid )
+		myconf+=( --enable-cuda-nvcc )
 		myconf+=( --enable-libnpp )
 		myconf+=( --extra-cflags=-I"${EPREFIX}/opt/cuda/include" )
 		myconf+=( --extra-ldflags=-L"${EPREFIX}/opt/cuda/lib64" )
 	else
-		myconf+=( --disable-cuvid )
+		myconf+=( --disable-cuda-nvcc )
 	fi
 
 	# Encoders
