@@ -1,0 +1,19 @@
+diff -ru a/Makefile b/Makefile
+--- a/Makefile	2019-12-07 20:45:11.000000000 +0100
++++ b/Makefile	2019-12-27 14:48:15.504084600 +0100
+@@ -16,7 +16,6 @@
+ ifeq ($(GOLANG),yes)
+ 	$(MAKE) -C go $@
+ endif
+-	$(MAKE) -C tests $@
+ 	$(MAKE) -C progs $@
+ 	$(MAKE) -C doc $@
+ 	$(MAKE) -C kdebug $@
+@@ -35,7 +34,6 @@
+ 	cd .. && ln -s libcap libcap-$(VERSION).$(MINOR) && tar cvf libcap-$(VERSION).$(MINOR).tar --exclude patches libcap-$(VERSION).$(MINOR)/* && rm libcap-$(VERSION).$(MINOR)
+ 
+ test: all
+-	cd progs && sudo ./quicktest.sh
+ 
+ morganrelease: distclean
+ 	@echo "sign the tag twice: older DSA key; and newer RSA kernel.org key"
